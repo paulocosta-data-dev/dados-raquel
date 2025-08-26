@@ -1,0 +1,20 @@
+# Core data processing
+pandas>=2.0.0
+openpyxl>=3.1.0    # suporte a Excel (.xlsx)
+xlrd>=2.0.1        # suporte a Excel antigo (.xls)
+# Utilitários para lidar com o sistema de arquivos
+#glob2>=0.7
+
+# Para garantir compatibilidade com Python 3 e acesso ao sistema de arquivos
+#os-sys
+
+# Data warehouse local/cloud
+duckdb>=1.0.0
+pyarrow>=14.0.0    # suporte a Parquet/Arrow
+
+# dbt para transformação e testes
+dbt-core>=1.7.0
+dbt-duckdb>=1.7.0
+
+# Utilitários recomendados
+jupyter>=1.0.0     # opcional, útil para testes em notebooks
