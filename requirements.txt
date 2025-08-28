@@ -18,3 +18,5 @@ dbt-duckdb>=1.7.0
 
 # Utilitários recomendados
 jupyter>=1.0.0     # opcional, útil para testes em notebooks
+
+streamlit>=1.35.0
