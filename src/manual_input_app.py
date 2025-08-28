@@ -3,111 +3,103 @@ import pandas as pd
 import os
 from datetime import date
 
-# --- Configuração ---
-CAMINHO_PARQUET = r"C:\Users\pdcge\OneDrive\Documents\git repos\dados-raquel\data\processed\meta\despesas_manuais.parquet"
-CAMINHO_CATEGORIAS = r"C:\Users\pdcge\OneDrive\Documents\git repos\dados-raquel\data\processed\meta\dim_categorias.parquet"
+# --- Paths e colunas ---
+BASE_PATH = r"C:\Users\pdcge\OneDrive\Documents\git repos\dados-raquel\data\processed\meta"
+CAMINHO_DESPESAS = os.path.join(BASE_PATH, "despesas_manuais.parquet")
+CAMINHO_CAIXA = os.path.join(BASE_PATH, "fundo_caixa.parquet")
+CAMINHO_CATEGORIAS = os.path.join(BASE_PATH, "dim_categorias.parquet")
+
 COLUNAS = ["Data", "Categoria", "Descrição", "Valor (€)"]
 
-# --- Função para carregar despesas ---
+# --- Garantir que a pasta existe ---
+os.makedirs(BASE_PATH, exist_ok=True)
+
+# --- Função para carregar parquet (não cria ficheiro) ---
 @st.cache_data
-def carregar_despesas():
-    if os.path.exists(CAMINHO_PARQUET):
-        return pd.read_parquet(CAMINHO_PARQUET)
+def carregar_parquet(caminho):
+    if os.path.exists(caminho):
+        return pd.read_parquet(caminho)
     else:
         return pd.DataFrame(columns=COLUNAS)
 
-# --- Função para carregar categorias ---
+# --- Guardar parquet (cria ficheiro só ao salvar o df) ---
+def guardar_parquet(df, caminho):
+    # Aqui não criamos ficheiro vazio antecipadamente
+    df.to_parquet(caminho, index=False)
+
+# --- Carregar categorias --- (sem alterações)
 @st.cache_data
 def carregar_categorias():
     if os.path.exists(CAMINHO_CATEGORIAS):
         df_cat = pd.read_parquet(CAMINHO_CATEGORIAS)
-        return sorted(df_cat['categoria'].dropna().unique())
+        if 'id_categoria' in df_cat.columns and 'categoria' in df_cat.columns:
+            return df_cat[['id_categoria', 'categoria']].drop_duplicates().sort_values('id_categoria')
+        else:
+            st.error("O ficheiro de categorias está num formato inesperado.")
+            return pd.DataFrame(columns=['id_categoria', 'categoria'])
     else:
-        return []
+        st.warning("Ficheiro de categorias não encontrado.")
+        return pd.DataFrame(columns=['id_categoria', 'categoria'])
 
-# --- Função para guardar ---
-def guardar_despesas(df):
-    df.to_parquet(CAMINHO_PARQUET, index=False)
+# --- Carregar dados ---
+df_despesas = carregar_parquet(CAMINHO_DESPESAS)
+df_caixa = carregar_parquet(CAMINHO_CAIXA)
+categorias = carregar_categorias()
 
-# --- Carregamento inicial ---
-df = carregar_despesas()
-lista_categorias = carregar_categorias()
+# --- Filtrar categoria para fundo de caixa (id 3) ---
+categoria_caixa = categorias[categorias['id_categoria'] == 3]
+cat_caixa_nome = categoria_caixa['categoria'].values[0] if not categoria_caixa.empty else "levantamentos_a_dinheiro"
 
-# --- Título ---
-st.set_page_config(page_title="Despesas Manuais", layout="wide")
-st.title("💸 Gestão de Despesas Manuais")
+# --- Setup da página ---
+st.set_page_config(page_title="Gestão de Despesas e Fundo de Caixa", layout="wide")
+st.title("💸 Gestão de Despesas Manuais e Fundo de Caixa")
 
-# --- Tabs ---
-tabs = st.tabs(["➕ Nova Despesa", "📋 Ver Despesas", "⚙️ Gerir Dados"])
+# --- Tabs principais ---
+tabs = st.tabs(["➕ Adicionar Registo", "📋 Visualizar/Editar Dados", "⚙️ Gerir Dados"])
 
-# ==============================
-# 🟢 TAB 1: Adicionar nova despesa
-# ==============================
+# ========== TAB 1: Adicionar Registo ==========
 with tabs[0]:
-    st.subheader("Adicionar nova despesa")
+    st.subheader("Adicionar novo registo")
+    tipo = st.radio("Escolha o tipo de registo:", options=["Despesa Manual", "Fundo de Caixa"])
 
-    with st.form("form_despesa"):
-        col1, col2 = st.columns(2)
-        with col1:
-            data = st.date_input("Data", value=date.today())
+    with st.form("form_adicionar"):
+        data = st.date_input("Data", value=date.today())
+        
+        if tipo == "Despesa Manual":
+            categorias_despesas = categorias[categorias['id_categoria'] != 3]
+            lista_categorias = categorias_despesas['categoria'].tolist()
+            categoria_selecionada = st.selectbox("Categoria", options=lista_categorias)
+        else:
+            categoria_selecionada = cat_caixa_nome
+            st.text_input("Categoria", value=categoria_selecionada, disabled=True)
 
-            if lista_categorias:
-                categoria = st.selectbox("Categoria", options=lista_categorias)
-            else:
-                st.warning("⚠️ Nenhuma categoria encontrada. Verifique o ficheiro de categorias.")
-                categoria = st.text_input("Categoria (manual)")
-
-        with col2:
-            descricao = st.text_input("Descrição")
-            valor = st.number_input("Valor (€)", min_value=0.01, format="%.2f")
-
+        descricao = st.text_input("Descrição")
+        valor = st.number_input("Valor (€)", min_value=0.01, format="%.2f")
         submitted = st.form_submit_button("Adicionar")
 
         if submitted:
-            if not categoria or not descricao:
-                st.error("⚠️ Todos os campos devem ser preenchidos.")
+            if not descricao.strip():
+                st.error("⚠️ A descrição não pode ficar vazia.")
             else:
-                nova = pd.DataFrame([{
+                nova_linha = pd.DataFrame([{
                     "Data": pd.to_datetime(data),
-                    "Categoria": categoria.strip().title(),
+                    "Categoria": categoria_selecionada.strip(),
                     "Descrição": descricao.strip(),
                     "Valor (€)": round(valor, 2)
                 }])
 
-                df = pd.concat([df, nova], ignore_index=True)
-                guardar_despesas(df)
-                st.success("✅ Despesa adicionada com sucesso!")
+                if tipo == "Despesa Manual":
+                    if df_despesas.empty:
+                        # Ficheiro não existe ou está vazio, então começamos um novo df
+                        df_despesas = nova_linha
+                    else:
+                        df_despesas = pd.concat([df_despesas, nova_linha], ignore_index=True)
+                    guardar_parquet(df_despesas, CAMINHO_DESPESAS)
+                else:
+                    if df_caixa.empty:
+                        df_caixa = nova_linha
+                    else:
+                        df_caixa = pd.concat([df_caixa, nova_linha], ignore_index=True)
+                    guardar_parquet(df_caixa, CAMINHO_CAIXA)
 
-# ==============================
-# 🟠 TAB 2: Visualizar tabela
-# ==============================
-with tabs[1]:
-    st.subheader("Despesas registadas")
-
-    if df.empty:
-        st.info("Nenhuma despesa registada.")
-    else:
-        df_ordenado = df.sort_values("Data", ascending=False).reset_index(drop=True)
-        st.dataframe(df_ordenado, use_container_width=True)
-
-        with st.expander("📤 Exportar"):
-            col1, col2 = st.columns(2)
-            with col1:
-                csv = df_ordenado.to_csv(index=False).encode('utf-8')
-                st.download_button("⬇️ CSV", csv, file_name="despesas_manuais.csv", mime="text/csv")
-            with col2:
-                excel = df_ordenado.to_excel(index=False, engine='openpyxl')
-                st.download_button("⬇️ Excel", excel, file_name="despesas_manuais.xlsx")
-
-# ==============================
-# 🔴 TAB 3: Limpar base de dados
-# ==============================
-with tabs[2]:
-    st.subheader("Gerir dados")
-
-    with st.expander("⚠️ Apagar todas as despesas"):
-        apagar = st.checkbox("Confirmo que quero apagar todos os dados.")
-        if st.button("Apagar tudo", disabled=not apagar):
-            df = pd.DataFrame(columns=COLUNAS)
-            guardar_despesas(df)
-            st.success("🗑️ Todas as despesas foram apagadas com sucesso.")
+                st.success("✅ Registo adicionado com sucesso!")
