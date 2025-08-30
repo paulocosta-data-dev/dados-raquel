@@ -1,24 +1,23 @@
 import pandas as pd
 import os
+from utils.categorias_loader import carregar_categorias  # Importa o loader do YAML
+from config import PATHS
 
-# --- Importa os dicionários de categorias ---
-from utils.categorias import CATEGORIAS as categorias_simples
-from utils.categorias_contexto import CATEGORIAS_CONTEXTO as categorias_contexto
+# --- Carrega as categorias do YAML unificado ---
+categorias_unificadas = carregar_categorias(PATHS["categorias_yaml"])
 
-# --- Extrai apenas id e nome de cada categoria ---
+# --- Extrai só id e nome ---
 def extrair_id_nome(lista_categorias):
     return [(cat["id"], cat["nome"]) for cat in lista_categorias]
 
-valores_1 = extrair_id_nome(categorias_simples)
-valores_2 = extrair_id_nome(categorias_contexto)
+valores = extrair_id_nome(categorias_unificadas)
 
-# --- Junta, remove duplicados e ordena ---
-todas_categorias = valores_1 + valores_2
-df_categorias = pd.DataFrame(todas_categorias, columns=["id_categoria", "categoria"])
+# --- Remove duplicados e ordena por id ---
+df_categorias = pd.DataFrame(valores, columns=["id_categoria", "categoria"])
 df_categorias = df_categorias.drop_duplicates().sort_values("id_categoria").reset_index(drop=True)
 
 # --- Define pasta e ficheiro de saída ---
-pasta_output = os.path.join("data", "processed", "meta")
+pasta_output = PATHS["output_meta"]
 os.makedirs(pasta_output, exist_ok=True)
 
 ficheiro_parquet = os.path.join(pasta_output, "dim_categorias.parquet")

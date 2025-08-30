@@ -3,12 +3,15 @@ import pandas as pd
 import os
 from datetime import date
 
-# --- Paths e colunas ---
-BASE_PATH = r"C:\Users\pdcge\OneDrive\Documents\git repos\dados-raquel\data\processed\meta"
+from config import PATHS  # <- NOVO
+
+# --- Caminhos de ficheiros ---
+BASE_PATH = PATHS["pasta_meta"]
 CAMINHO_DESPESAS = os.path.join(BASE_PATH, "despesas_manuais.parquet")
 CAMINHO_CAIXA = os.path.join(BASE_PATH, "fundo_caixa.parquet")
 CAMINHO_CATEGORIAS = os.path.join(BASE_PATH, "dim_categorias.parquet")
 
+# --- Colunas esperadas ---
 COLUNAS = ["Data", "Categoria", "Descrição", "Valor (€)"]
 
 # --- Garantir que a pasta existe ---
@@ -22,12 +25,11 @@ def carregar_parquet(caminho):
     else:
         return pd.DataFrame(columns=COLUNAS)
 
-# --- Guardar parquet (cria ficheiro só ao salvar o df) ---
+# --- Guardar parquet ---
 def guardar_parquet(df, caminho):
-    # Aqui não criamos ficheiro vazio antecipadamente
     df.to_parquet(caminho, index=False)
 
-# --- Carregar categorias --- (sem alterações)
+# --- Carregar categorias ---
 @st.cache_data
 def carregar_categorias():
     if os.path.exists(CAMINHO_CATEGORIAS):
@@ -89,17 +91,10 @@ with tabs[0]:
                 }])
 
                 if tipo == "Despesa Manual":
-                    if df_despesas.empty:
-                        # Ficheiro não existe ou está vazio, então começamos um novo df
-                        df_despesas = nova_linha
-                    else:
-                        df_despesas = pd.concat([df_despesas, nova_linha], ignore_index=True)
+                    df_despesas = pd.concat([df_despesas, nova_linha], ignore_index=True)
                     guardar_parquet(df_despesas, CAMINHO_DESPESAS)
                 else:
-                    if df_caixa.empty:
-                        df_caixa = nova_linha
-                    else:
-                        df_caixa = pd.concat([df_caixa, nova_linha], ignore_index=True)
+                    df_caixa = pd.concat([df_caixa, nova_linha], ignore_index=True)
                     guardar_parquet(df_caixa, CAMINHO_CAIXA)
 
                 st.success("✅ Registo adicionado com sucesso!")

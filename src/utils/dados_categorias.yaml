@@ -1,0 +1,131 @@
+- id: 1
+  nome: cabeleireiro
+  padroes: ['BELEZA']
+  datas: []
+  valores: []
+
+- id: 2
+  nome: psicologo
+  padroes: ['TRF P/ NUNO J. SOUSA', 'TRF P/ Poupancas']
+  datas: []
+  valores: [70]
+
+- id: 3
+  nome: levantamentos_a_dinheiro
+  padroes: ['LEV ATM']
+  datas: []
+  valores: []
+
+- id: 4
+  nome: pensões
+  padroes: ['ORDENADO', 'CGA PENS', 'APOSENTAC', 'INSTITUTO DE GEST O FINANCE']
+  datas: []
+  valores: []
+
+- id: 5
+  nome: acertos_de_jose_carlos
+  padroes: ['TRF. P/O JOSE CARLOS ABREU FERNANDES']
+  datas: []
+  valores: []
+
+- id: 6
+  nome: supermercado
+  padroes: ['CONTINENTE', 'PINGO DOCE', 'LIDL', 'MINIPRECO', 'SOGENAVE VENDING', 'CONTIN BOM DIA', 'TRF P/ Mae Poupancas', 'TRF DE PAULO FRANCISCO P A FERNANDES COSTA']
+  datas: []
+  valores: [93.83, 119.3, 53.62, 49.9]
+
+- id: 7
+  nome: farmacia_e_suplementos
+  padroes: ['FARMACIA', 'WELLS', 'CELEIRO', 'Acerto vaselina amazon', 'TRF P/ Poupancas', 'TRF. P/O PAULO FRANCISCO P A FERNANDES COSTA', 'TRF P/ Mae Poupancas']
+  datas: ['2025-04-11']
+  valores: [28.98, 51.44, 12.2, 95.41, 52.61, 71.12, 50.26, 65.64, 44.92, 21.7, 52.15, 0.16]
+
+- id: 8
+  nome: restaurantes
+  padroes: ['RESTAURANTE', 'PITADAS', 'TOUCINHO', 'DOM LEIT', 'TRF P/ Mae Poupancas']
+  datas: []
+  valores: [92.09]
+
+- id: 9
+  nome: papelaria_e_livros
+  padroes: ['PAPELARIA']
+  datas: []
+  valores: []
+
+- id: 10
+  nome: chines
+  padroes: ['ZHENG', 'XUEQIAN']
+  datas: []
+  valores: []
+
+- id: 11
+  nome: tech_software
+  padroes: ['APPLE.COM']
+  datas: []
+  valores: []
+
+- id: 12
+  nome: transportes
+  padroes: ['CP', 'ENTRECAMPOS', 'ALVERCA']
+  datas: []
+  valores: []
+
+- id: 13
+  nome: condominio_casa
+  padroes: ['CONDOMINIO PREDIO ENCOSTA SOL']
+  datas: []
+  valores: []
+
+- id: 14
+  nome: tech_hardware
+  padroes: ['RADIO POPULAR']
+  datas: []
+  valores: []
+
+- id: 15
+  nome: estadias_feira_nova
+  padroes: ['TRF P/ JOSE FERNANDES']
+  datas: []
+  valores: []
+
+- id: 16
+  nome: reforço_fundo_emprestimo_casa
+  padroes: ['3302971348', 'TRF. P/O PAULO FRANCISCO P A FERNANDES COSTA', 'TRF. P/O  PAULO FRANCISCO P A FERNAND']
+  datas: []
+  valores: [70, 200]
+
+- id: 17
+  nome: transferencia_para_conta_despesas
+  padroes: ['TRF P/ PAULO COSTA', 'TRF P/ PAULO FRANCISCO P A FERNANDES COSTA']
+  datas: ['2025-07-17']
+  valores: [150]
+
+- id: 227
+  nome: seguro_casa
+  padroes: ['TRF P/ Poupancas']
+  datas: ['2025-04-22']
+  valores: [191.39]
+
+- id: 228
+  nome: utilização_fundo_imprevistos
+  padroes: ['TRF P/ Mae Poupancas']
+  datas: ['2025-07-21']
+  valores: [300, 325]
+
+- id: 229
+  nome: compras_pessoais
+  padroes: ['TRF P/ Mae Poupancas', 'TRF. P/O PAULO FRANCISCO P A FERNANDES COSTA']
+  datas: ['2025-06-02']
+  valores: [269.87]
+
+- id: 229
+  nome: utilizacao_fundo_emprestimo_casa
+  padroes: ['TRF P/ PAULO FRANCISCO P A FERNANDES COSTA']
+  datas: []
+  valores: [5500]
+
+- id: 99
+  nome: outros
+  padroes: []
+  datas: []
+  valores: []
